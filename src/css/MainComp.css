@@ -79,6 +79,7 @@
   background: rgba(210, 223, 255, 0.2);
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
 }
 
 .line-change {
@@ -98,4 +99,37 @@
 .page-select {
   width: 80px;
   margin-left: 10px;
+}
+
+.top-icon {
+  position: fixed;
+  bottom: 2%;
+  right: 2%;
+  cursor: pointer;
+}
+.board-name {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.go-post {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 10px;
+
+  width: 10%;
+  height: 1%;
+
+  background: #b4c9ff;
+  border-radius: 10px;
+}
+
+.name-and-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
