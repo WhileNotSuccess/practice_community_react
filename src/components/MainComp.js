@@ -27,3 +27,16 @@ export const CreateCategory = ({ boardName, categoryChange }) => {
     </div>
   );
 };
+
+export const UserInfo = (props) => {
+  return (
+    <div className="user-info">
+      <div className="user-login" onClick={props.GoToLogin}>
+        로그인
+      </div>
+      <div className="logout-btn" onClick={props.GoToSignIn}>
+        로그아웃
+      </div>
+    </div>
+  );
+};

@@ -51,16 +51,31 @@ const Post = () => {
     console.log(content);
   };
 
-  const onclick = () => {
-    const postThing = {
-      title: title,
-      content: content,
-      category: boardName,
-    };
+  const onclick = (boardName) => {
+    console.log(`http://localhost:8000/api/posts?category=${boardName}`);
+
+    // FormData 객체 생성
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", content);
+    formData.append("category", boardName);
+
+    if (image && image.files && image.files[0]) {
+      formData.append("image", image.files[0]);
+      console.log("이미지 파일:", image.files[0]);
+    } else {
+      console.log("이미지가 선택되지 않았습니다.");
+    }
+
     axios
-      .post(`http://localhost:8000/api/posts`, postThing)
+      .post(`http://localhost:8000/api/posts?category=${boardName}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
       .then((res) => {
         console.log("성공했습니다", res.data);
+        navigate("/");
       })
       .catch((error) => {
         console.error("실패했습니다", error);
@@ -76,16 +91,16 @@ const Post = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      console.log("이미지:", file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        const imageUrl = reader.result; // 이미지 URL 생성
+        const imageUrl = reader.result;
         const imageTag = `<img src="${imageUrl}" alt="Image" style="max-width: 100%; height: auto;" />`;
         if (editor) {
-          // CKEditor에 이미지 추가
           editor.setData(editor.getData() + imageTag);
         }
       };
-      reader.readAsDataURL(file); // 파일을 데이터 URL로 읽기
+      reader.readAsDataURL(file);
     }
   };
 
@@ -142,7 +157,7 @@ const Post = () => {
           </div>
         </div>
         <div className="btns-box">
-          <div className="upload-btn" onClick={onclick}>
+          <div className="upload-btn" onClick={() => onclick(boardName)}>
             <>업로드</>
           </div>
           <div className="upload-btn" onClick={GoToMain}>
@@ -152,7 +167,7 @@ const Post = () => {
       </div>
 
       <div>
-        {/* <UserInfo GoToLogin={GoToLogin} GoToSignIn={GoToSignIn} /> */}
+        <UserInfo GoToLogin={GoToLogin} GoToSignIn={GoToSignIn} />
       </div>
     </div>
   );
