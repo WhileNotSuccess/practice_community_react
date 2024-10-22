@@ -8,6 +8,40 @@ import { useNavigate } from "react-router-dom";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
+class MyUploadAdapter {
+  constructor(loader, boardName) {
+    this.loader = loader;
+    this.boardName = boardName;
+  }
+
+  upload() {
+    return new Promise((resolve, reject) => {
+      const data = new FormData();
+      this.loader.file.then((file) => {
+        data.append("upload", file);
+
+        axios
+          .post(
+            `http://localhost:8000/api/posts?category=${this.boardName}`,
+            data
+          )
+          .then((res) => {
+            imgUrl = res.data;
+            console.log(res.data);
+            resolve({
+              default: imgUrl,
+            });
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
+    });
+  }
+
+  abort() {}
+}
+
 const Post = () => {
   const [loginUser, setLoginUser] = useState([]);
   const [postCategory, setPostCategory] = useState([]);
@@ -28,6 +62,14 @@ const Post = () => {
       setPostCategory(res.data);
     });
   }, []); */
+
+  const adapter = (editorInstance, boardName) => {
+    editorInstance.plugins.get("FileRepository").createUploadAdapter = (
+      loader
+    ) => {
+      return new MyUploadAdapter(loader, boardName);
+    };
+  };
 
   const GoToLogin = () => {
     navigate("/login");
@@ -81,29 +123,6 @@ const Post = () => {
         console.error("실패했습니다", error);
       });
   };
-
-  const imageInput = () => {
-    if (image) {
-      image.click();
-    }
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      console.log("이미지:", file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const imageUrl = reader.result;
-        const imageTag = `<img src="${imageUrl}" alt="Image" style="max-width: 100%; height: auto;" />`;
-        if (editor) {
-          editor.setData(editor.getData() + imageTag);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   return (
     <div className="post-board">
       <div className="board-tag">
@@ -127,31 +146,18 @@ const Post = () => {
           <input placeholder="제목" onChange={titlechange}></input>
         </div>
         <div className="user-name">유저명</div>
-        <div className="image-box" onClick={imageInput}>
-          <div className="image-btn">
-            {
-              <input
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                ref={(input) => setImage(input)}
-                onChange={handleImageChange}
-              />
-            }
-            <>이미지 업로드</>
-          </div>
-        </div>
+        <div className="image-box" onClick={imageInput}></div>
         <div className="content-write">
           <div className="ckeditor">
             <CKEditor
               editor={ClassicEditor}
               data=""
               onReady={(editorInstance) => {
-                setEditor(editorInstance); // editor 상태 업데이트
+                setEditor(editorInstance);
+                adapter(editorInstance, boardName);
               }}
               onChange={(event, editorInstance) => {
-                const data = editorInstance.getData();
-                setContent(data); // CKEditor 내용 상태 업데이트
+                setContent(editorInstance.getData());
               }}
             />
           </div>
