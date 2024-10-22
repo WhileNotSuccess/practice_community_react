@@ -9,7 +9,7 @@ const ListIn = ({ id }) => {
   const [postComment, setPostComment] = useState(0); // 수정시 양수id 댓글작성시 음수id
   const [content, sContent] = useState("");
   const [makeComment, makeContent] = useState(false);
-  id = 1;
+  id = 10;
   const updater = () => {};
   const deleter = () => {
     axios.delete(`http://127.0.0.1:8000/api/posts/${id}`); //response로 지워야할 comment의 id 받아올 수 있는가?
