@@ -1,18 +1,18 @@
 import axios from "../lib/axios";
 import React, { useEffect, useState } from "react";
 
-const Comment = ({ id, reid }) => {
+const Comment = ({ id, reid, postComment }, setPostComment) => {
   const [comment, sComment] = useState([]);
-  const [postComment, setPostComment] = useState(0); // 수정시 양수id 댓글작성시 음수id
+
   const [content, sContent] = useState("");
   const [render, sRender] = useState(false);
   //댓글 수정
-  const remake = (id) => {
+  const remake = async (id) => {
     reid
-      ? axios.put(`http://127.0.0.1:8000/api/nested-comments/${id}`, {
+      ? await axios.put(`http://127.0.0.1:8000/api/nested-comments/${id}`, {
           content: content,
         })
-      : axios
+      : await axios
           .put(`http://127.0.0.1:8000/api/comments/${id}`, {
             content: content,
           })
@@ -22,13 +22,13 @@ const Comment = ({ id, reid }) => {
     sRender(!render);
   };
   //댓글 작성
-  const onComment = (id) => {
+  const onComment = async (id) => {
     reid
-      ? axios.post(`http://127.0.0.1:8000/api/nested-comments`, {
+      ? await axios.post(`http://127.0.0.1:8000/api/nested-comments`, {
           content: content,
           commentId: id,
         })
-      : axios.post(`http://127.0.0.1:8000/api/comments`, {
+      : await axios.post(`http://127.0.0.1:8000/api/comments`, {
           content: content,
           postId: id,
         });
@@ -38,12 +38,10 @@ const Comment = ({ id, reid }) => {
   };
 
   //댓글 삭제
-  const deleteComment = ({ id }) => {
+  const deleteComment = async ({ id }) => {
     reid
-      ? axios.delete(
-          `http://127.0.0.1:8000/api/nested-comments?comment-id=${id}`
-        )
-      : axios.delete(`http://127.0.0.1:8000/api/comments?post-id=${id}`);
+      ? await axios.delete(`http://127.0.0.1:8000/api/nested-comments/${id}`)
+      : await axios.delete(`http://127.0.0.1:8000/api/comments/${id}`);
     sRender(!render);
   };
 
@@ -55,7 +53,7 @@ const Comment = ({ id, reid }) => {
       : axios
           .get(`http://127.0.0.1:8000/api/comments?post-id=${id}`)
           .then((res) => sComment(res.data.data));
-  }, [id, reid, render]);
+  }, [id, reid, render, postComment]);
 
   return (
     <div>
